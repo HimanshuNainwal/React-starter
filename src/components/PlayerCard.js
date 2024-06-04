@@ -11,7 +11,7 @@ function PlayerCard({ name, symbol }) {
 
 
 
-console.log("playerName",playerName ,"edit",edit)
+
 
   // 1 when we will click on edit edit will change to save and player name span will change to input box
 
