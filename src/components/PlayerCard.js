@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 
-function PlayerCard({ name, symbol }) {
+function PlayerCard({ name, symbol , active }) {
 
   const [playerName, setPlayerName] = useState(name);
 
   const [edit, setEdit] = useState(false);
 
 //   edit = true
-
 
 
 
@@ -20,7 +19,7 @@ function PlayerCard({ name, symbol }) {
   };
 
   return (
-    <li className="active">
+    <li className={`${active? "active" :""}`}>
       <span className="player">
         {edit ? (
           <input

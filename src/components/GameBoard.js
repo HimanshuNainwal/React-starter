@@ -8,7 +8,7 @@ export default function GameBoard({ board , handleChange }) {
               {outerRow?.map((innerValue, innerIndex) => {
                 return (
                   <li key={innerIndex}>
-                    <button onClick={() =>handleChange(outerIndex,innerIndex,"X") }> {innerValue}</button>
+                    <button onClick={() =>handleChange(outerIndex,innerIndex) }> {innerValue}</button>
                   </li>
                 );
               })}
