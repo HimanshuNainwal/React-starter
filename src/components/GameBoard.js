@@ -9,6 +9,7 @@ export default function GameBoard({ board , handleChange }) {
                 return (
                   <li key={innerIndex}>
                     <button onClick={() =>handleChange(outerIndex,innerIndex) }> {innerValue}</button>
+                    {/* <button onClick={() =>handleChange(outerIndex,innerIndex) }> {outerIndex },{innerIndex}</button> */}
                   </li>
                 );
               })}
