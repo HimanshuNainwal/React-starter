@@ -23,6 +23,11 @@ function App() {
     }
   };
 
+  const handleRefresh = async () => {
+    setCurrentProject("");
+    await getAllProjects();
+  };
+
   useEffect(() => {
     getAllProjects();
   }, []);
@@ -57,15 +62,14 @@ function App() {
               })}
           </div>
         </aside>
-              <div className="w-[35rem] mt-16">
         {/* {!showAddProject ? <NoProject /> :<AddProject />} */}
         {!showAddProject && !currentProject && (
           <NoProject onOpen={() => setShowAddProject(true)} />
         )}
         {currentProject && !showAddProject && (
-          <>
-            <ShowProject  id={currentProject}/>
-          </>
+          <div className="w-[35rem] mt-16">
+            <ShowProject id={currentProject} closeProject={handleRefresh} />
+          </div>
         )}
 
         {showAddProject && (
@@ -74,7 +78,6 @@ function App() {
             fetchData={getAllProjects}
           />
         )}
-        </div>
       </main>
     </>
   );

@@ -2,7 +2,7 @@ import React from "react";
 
 function NoProject({onOpen}) {
   return (
-    <div className="mt-24 text-center w-2/3">
+    <div className="mt-24 text-center w-full">
       <img
         src="/src/assets/no-projects.png"
         alt="An empty task list"
