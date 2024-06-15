@@ -9,7 +9,6 @@ function ErrorModal(props) {
   const {handleClose} = props
   return (
     <Portal>
-      {/* <div className="bg-gray-900/90 h-screen w-screen 	"> */}
 
       <div className="bg-white p-4 rounded-md shadow-md opacity-100  w-[500px] top-[30%]  left-[40%]  fixed	 z-20 ">
         <h2 className="text-xl font-bold text-stone-700 my-4">Invalid Input</h2>
@@ -26,12 +25,6 @@ function ErrorModal(props) {
         </form>
       </div>
 
-
-      {/* <div className=" h-screen w-screen top-0 bottom-0 left-0 right-0 z-10 	" style={{background:"rgb(28 25 23 / 0.9)"}}> 
-
-      </div> */}
-
-      {/* </div> */}
     </Portal>
   );
 }
