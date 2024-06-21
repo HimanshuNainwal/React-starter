@@ -16,8 +16,12 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Hompage />} />
-        <Route path="/category" element={<CategoryPage />} />
+        {/* <Route path="/category/new-arrivals.html" element={<CategoryPage />} /> */}
+        <Route path="/category/:mohit" element={<CategoryPage />} />
+
+        
         <Route path="/product" element={<Product/>} />
+
         {/* all */}
         <Route path="*" element={<p>Page Not Found</p>}  />
       </Routes>

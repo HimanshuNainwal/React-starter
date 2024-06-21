@@ -1,16 +1,21 @@
-import React from 'react'
-import { useNavigate } from 'react-router'
+import React from "react";
+import { useNavigate, useParams } from "react-router";
 
 function CategoryPage() {
-  const navigate = useNavigate()
+  const { mohit } = useParams();
+
+  console.log('mohit',mohit);
   return (
-    <div>CategoryPage
-
-
-
-<button  className='bg-black text-white border rounded' onClick={() => navigate('/')}>back to home</button>
+    <div>
+      CategoryPage {mohit}
+      <button
+        className="bg-black text-white border rounded"
+        onClick={() => navigate("/")}
+      >
+        back to home
+      </button>
     </div>
-  )
+  );
 }
 
-export default CategoryPage
+export default CategoryPage;
