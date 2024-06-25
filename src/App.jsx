@@ -14,10 +14,13 @@ function App() {
   return (
     <>
       <Header />
+
+      <div className="min-h-screen mt-6">
+
       <Routes>
         <Route path="/" element={<Hompage />} />
         {/* <Route path="/category/new-arrivals.html" element={<CategoryPage />} /> */}
-        <Route path="/category/:mohit" element={<CategoryPage />} />
+        <Route path="/category/:category" element={<CategoryPage />} />
 
         
         <Route path="/product" element={<Product/>} />
@@ -25,6 +28,7 @@ function App() {
         {/* all */}
         <Route path="*" element={<p>Page Not Found</p>}  />
       </Routes>
+      </div>
       <Footer />
     </>
   );

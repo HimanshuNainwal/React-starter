@@ -9,9 +9,9 @@ function Header() {
 
         <div className='flex items-center gap-4' >
         <img src='https://wforwoman.com/images/logo.png' className='w-24 mr-2'   /> 
-          <NavLink to="/category/new-arrivals.html" className={`text-base font-bold mx-1  hover:text-rose-800 `}   >New Arrival </NavLink>
-          <NavLink to="/category/anushka-picks.html" className={"text-base font-bold mx-1  hover:text-rose-800"}   > Anushka </NavLink>
-          <NavLink to="/category/top-wear.html" className={"text-base font-bold mx-1  hover:text-rose-800"}   > Top Wear</NavLink>
+          <NavLink to="/category/new-arrivals" className={`text-base font-bold mx-1  hover:text-rose-800 `}   >New Arrival </NavLink>
+          <NavLink to="/category/anushka-picks" className={"text-base font-bold mx-1  hover:text-rose-800"}   > Anushka </NavLink>
+          <NavLink to="/category/top-wear" className={"text-base font-bold mx-1  hover:text-rose-800"}   > Top Wear</NavLink>
         </div>
 
       <div>
