@@ -4,12 +4,19 @@ import { useNavigate, useParams } from "react-router";
 import { BASE_URL } from "../../lib/constans";
 import { Triangle } from "react-loader-spinner";
 import SingleFilterComponent from "../components/SingleFilterComponent";
+import { useSearchParams } from "react-router-dom";
 
 function CategoryPage() {
   const { category } = useParams();
   const [uiLoader, setUiLoader] = useState(true);
   const [CurrentPage, setCurrentPage] = useState(1);
   const [isPageAvailable, setIsPageAvailable] = useState(true);
+
+  const [searchParams,setSearchParams] = useSearchParams()
+
+  const filter = searchParams.get("filter")
+
+
 
   const [appliedFilters,setAppliedFilters] = useState({})
 
@@ -42,7 +49,7 @@ function CategoryPage() {
       const response = await axios(
         `${BASE_URL}?service=category&store=1&url_key=${url_key}&page=${
           page || 1
-        }&count=100`
+        }&count=10`
       );
 
       // &sort_by=${sort_by || ""}&sort_dir=${sort_dir || ""}&desc=${
@@ -71,29 +78,26 @@ function CategoryPage() {
     }
   };
 
-  const handleFilterChange = (code,value ) => {
-    const currentFilter = appliedFilters
-
-      if(currentFilter[code]){
-          currentFilter[code] = [...currentFilter[code],value]
-      }else {
-
-          currentFilter[code] = [value]
-
+  const handleFilterChange = (code, value) => {
+    setAppliedFilters(prevFilters => {
+      const updatedFilters = { ...prevFilters };
+      // const updatedFilters = prevFilters
+      
+      // Create a new copy of the current filters
+      if (updatedFilters[code]) {
+        updatedFilters[code] = [...updatedFilters[code], value]; // Update the filter value
+      } else {
+        updatedFilters[code] = [value]; // Add the new filter value
       }
+      return updatedFilters; // Return the new filter object
+    });
+  };
+  
 
-
-
-      setAppliedFilters(currentFilter)
-
-
-
-
-  }
-
-  console.log('appliedFilters',appliedFilters);
 
   useEffect(() => {
+    
+    
     setIsPageAvailable(true);
     setProductData([]);
     window.scrollTo(0, 0);
@@ -110,6 +114,137 @@ function CategoryPage() {
     };
   }, [uiLoader, isPageAvailable]);
 
+
+  useEffect(() => {
+
+    // product_category-Kurtas,product_category-Kurta Sets
+    // [product_category-Kurtas,product_category-Kurta Sets]
+    if(filter){
+      const urlFilter = filter
+      console.log('urlFilter',urlFilter);
+      const arrayOfFilter = urlFilter.split(',')
+      const filterObj ={}
+
+      // console.log('arrayOfFilter',arrayOfFilter);
+
+      arrayOfFilter.forEach(singleFilter => {
+
+        // console.log(" singleFilter.split('-')", singleFilter.split('-'));
+
+        const [key,value] = singleFilter.split('-')
+        // console.log('key,value',key,value);
+        if(key && value){
+
+          if (filterObj[key]) {
+            filterObj[key] = [...filterObj[key], value]; // Update the filter value
+          } else {
+            // filterObj['product_category'] = ["kurta"]
+            filterObj[key] = [value]; // Add the new filter value
+          }
+        }
+
+
+      })
+
+      // console.log('filterObj',filterObj);
+      setAppliedFilters(filterObj)
+
+
+    }
+
+  },[])
+
+
+
+  useEffect(() => {
+    if(Object.keys(appliedFilters)){
+
+      // let urlStrin = " "
+    //   const obj = {
+    //     "product_category": [
+    //         "Kurtas",
+    //         "Kurta Sets"
+    //     ],
+    //     "selling_price": [
+    //         "Rs.0 to Rs.999"
+    //     ]
+    // }
+    // Object.keys(obje)
+    // ["product_category","selling_price"]
+    // obj.product_category ->  [
+    //         "Kurtas",
+    //         "Kurta Sets"
+    //     ]
+
+    // const val  =   [
+    //         "Kurtas",
+    //         "Kurta Sets"
+    //     ]
+// val.loop -> urlStrig += `product_category-Kurtas`
+
+
+    
+
+      // extracting keys from the object 
+      // ["product_category","selling_price","discount"]
+      // 
+    //   {
+    //     "product_category": [
+    //         "Kurtas",
+    //         "Kurta Sets",
+    //         "Tops",
+    //         "Gowns & Dresses",
+    //         "Sharara Sets",
+    //         "Straight Kurta"
+    //     ],
+    //     "selling_price": [
+    //         "Rs.0 to Rs.999",
+    //         "Rs.1000 to Rs.1999"
+    //     ],
+    //     "discount": [
+    //         "10% and Above",
+    //         "20% and Above"
+    //     ]
+    // }
+      // a,b , c ,d 
+      let urlString = ""
+      Object.keys(appliedFilters)?.forEach((singleKey,index) => {
+
+        // extracting value from the object based on key
+        const singleValue = appliedFilters[singleKey] 
+        // [
+          //         "Kurtas",
+          //         "Kurta Sets",
+          //         "Tops",
+          //         "Gowns & Dresses",
+          //         "Sharara Sets",
+          //         "Straight Kurta"
+              // ]
+
+
+        if(singleValue?.length){
+          singleValue.forEach(value => {
+            // product_category-Kurtas
+            // product_category-Tops
+            // product_category-Straight Kurta
+            urlString += `${singleKey}-${value},`
+          })
+
+        }
+      })
+
+      console.log('appliedFilters',appliedFilters);
+
+      
+      setSearchParams({filter:urlString})
+   
+
+      // encodeURIComponent
+
+
+
+    }
+  },[appliedFilters])
   // console.log('loaderRef',loaderRef?.current?.offsetTop);
 
   return (
