@@ -12,18 +12,17 @@ function CategoryPage() {
   const [CurrentPage, setCurrentPage] = useState(1);
   const [isPageAvailable, setIsPageAvailable] = useState(true);
 
-  const [searchParams,setSearchParams] = useSearchParams()
-
-  const filter = searchParams.get("filter")
-
-
-
-  const [appliedFilters,setAppliedFilters] = useState({})
-
-  const loaderRef = useRef(null);
-
   const [productData, setProductData] = useState([]);
   const [filtersData, setFiltersData] = useState([]);
+  const [appliedFilters, setAppliedFilters] = useState({});
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filterString,setFilterString] = useState("")
+
+  const filter = searchParams.get("filter");
+
+
+  const loaderRef = useRef(null);
 
   const handleScroll = (e) => {
     const topScroll = window.scrollY; // 0 - 20000 -4000
@@ -32,29 +31,30 @@ function CategoryPage() {
     // uiLoader it will wait for the api call
     // isPageAvailable for when there is next page
     if (topScroll > loaderScroll - 1000 && !uiLoader && isPageAvailable) {
-      getProductList(category, CurrentPage + 1);
+      getProductList(category, CurrentPage + 1 ,filterString);
     }
   };
 
   const getProductList = async (
     url_key,
     page,
+    filter,
     sort_by,
     sort_dir,
-    desc,
-    filter
+    desc
   ) => {
     try {
       setUiLoader(true);
       const response = await axios(
         `${BASE_URL}?service=category&store=1&url_key=${url_key}&page=${
           page || 1
-        }&count=10`
+        }&count=10&filter=${filter || ""}`
       );
 
-      // &sort_by=${sort_by || ""}&sort_dir=${sort_dir || ""}&desc=${
+      // sort_by=${sort_by || ""}&sort_dir=${sort_dir || ""}&desc=${
       //   desc || ""
-      // }&filter=${filter || ""}
+      // }&
+
       if (response?.status == 200) {
         if (response?.data?.result) {
           if (response?.data?.result?.filters?.length) {
@@ -78,30 +78,150 @@ function CategoryPage() {
     }
   };
 
-  const handleFilterChange = (code, value) => {
-    setAppliedFilters(prevFilters => {
-      const updatedFilters = { ...prevFilters };
-      // const updatedFilters = prevFilters
-      
-      // Create a new copy of the current filters
-      if (updatedFilters[code]) {
-        updatedFilters[code] = [...updatedFilters[code], value]; // Update the filter value
-      } else {
-        updatedFilters[code] = [value]; // Add the new filter value
-      }
-      return updatedFilters; // Return the new filter object
-    });
-  };
-  
+ 
+  const setFilterInParams = async (filterObj) => {
 
+    if (Object.keys(filterObj)) {
+      // let urlStrin = " "
+      //   const obj = {
+      //     "product_category": [
+      //         "Kurtas",
+      //         "Kurta Sets"
+      //     ],
+      //     "selling_price": [
+      //         "Rs.0 to Rs.999"
+      //     ]
+      // }
+      // Object.keys(obje)
+      // ["product_category","selling_price"]
+      // obj.product_category ->  [
+      //         "Kurtas",
+      //         "Kurta Sets"
+      //     ]
+
+      // const val  =   [
+      //         "Kurtas",
+      //         "Kurta Sets"
+      //     ]
+      // val.loop -> urlStrig += `product_category-Kurtas`
+
+      // extracting keys from the object
+      // ["product_category","selling_price","discount"]
+      //
+      //   {
+      //     "product_category": [
+      //         "Kurtas",
+      //         "Kurta Sets",
+      //         "Tops",
+      //         "Gowns & Dresses",
+      //         "Sharara Sets",
+      //         "Straight Kurta"
+      //     ],
+      //     "selling_price": [
+      //         "Rs.0 to Rs.999",
+      //         "Rs.1000 to Rs.1999"
+      //     ],
+      //     "discount": [
+      //         "10% and Above",
+      //         "20% and Above"
+      //     ]
+      // }
+      // a,b , c ,d
+
+      let urlStringArray = [];
+
+      Object.keys(filterObj)?.forEach((singleKey, index) => {
+        const singleValue = filterObj[singleKey];
+        if (singleValue?.length) {
+          singleValue.forEach((value) => {
+            if(singleKey == "selling_price"){
+
+              const formattedValue = value.replaceAll(" ", "+")
+              urlStringArray.push(`${singleKey}-${formattedValue}`);
+
+            }else {
+
+              
+              urlStringArray.push(`${singleKey}-${value}`);
+            }
+          });
+        }
+      });
+
+
+
+      const urlString = urlStringArray.join(",");
+
+
+
+      setIsPageAvailable(true);
+      setProductData([]);
+      window.scrollTo(0, 0);
+      setFilterString(urlString)
+      setSearchParams({ filter: urlString });
+      await getProductList(category, 1, urlString);
+    } else {
+      setFilterString("")
+    }
+  };
+
+  const handleFilterChange = (code, value) => {
+    const updatedFilters = { ...appliedFilters };
+
+    // Create a new copy of the current filters
+    if (updatedFilters[code]) {
+      if (updatedFilters[code]?.includes(value)) {
+        updatedFilters[code] = updatedFilters[code].filter(
+          (el) => el !== value
+        );
+      } else {
+        updatedFilters[code] = [...updatedFilters[code], value]; // Update the filter value
+      }
+    } else {
+      updatedFilters[code] = [value]; // Add the new filter value
+    }
+    console.log('updatedFilters',updatedFilters);
+    setAppliedFilters(updatedFilters);
+    setFilterInParams(updatedFilters)
+
+    
+  };
 
   useEffect(() => {
-    
-    
-    setIsPageAvailable(true);
-    setProductData([]);
-    window.scrollTo(0, 0);
-    getProductList(category);
+
+    if (filter) {
+
+      const urlFilter = filter;
+
+      const arrayOfFilter = urlFilter.split(",");
+      const filterObj = {};
+
+
+
+      arrayOfFilter.forEach((singleFilter) => {
+
+        const [key, value] = singleFilter.split("-");
+        // console.log('key,value',key,value);
+        if (key && value) {
+          if (filterObj[key]) {
+            filterObj[key] = [...filterObj[key], value]; // Update the filter value
+          } else {
+            filterObj[key] = [value]; // Add the new filter value
+          }
+        }
+      });
+
+
+
+      setFilterInParams(filterObj)
+      setAppliedFilters(filterObj);
+    }else {
+
+      setIsPageAvailable(true);
+      setProductData([]);
+      window.scrollTo(0, 0);
+      getProductList(category);
+    }
   }, [category]);
 
   useEffect(() => {
@@ -115,137 +235,6 @@ function CategoryPage() {
   }, [uiLoader, isPageAvailable]);
 
 
-  useEffect(() => {
-
-    // product_category-Kurtas,product_category-Kurta Sets
-    // [product_category-Kurtas,product_category-Kurta Sets]
-    if(filter){
-      const urlFilter = filter
-      console.log('urlFilter',urlFilter);
-      const arrayOfFilter = urlFilter.split(',')
-      const filterObj ={}
-
-      // console.log('arrayOfFilter',arrayOfFilter);
-
-      arrayOfFilter.forEach(singleFilter => {
-
-        // console.log(" singleFilter.split('-')", singleFilter.split('-'));
-
-        const [key,value] = singleFilter.split('-')
-        // console.log('key,value',key,value);
-        if(key && value){
-
-          if (filterObj[key]) {
-            filterObj[key] = [...filterObj[key], value]; // Update the filter value
-          } else {
-            // filterObj['product_category'] = ["kurta"]
-            filterObj[key] = [value]; // Add the new filter value
-          }
-        }
-
-
-      })
-
-      // console.log('filterObj',filterObj);
-      setAppliedFilters(filterObj)
-
-
-    }
-
-  },[])
-
-
-
-  useEffect(() => {
-    if(Object.keys(appliedFilters)){
-
-      // let urlStrin = " "
-    //   const obj = {
-    //     "product_category": [
-    //         "Kurtas",
-    //         "Kurta Sets"
-    //     ],
-    //     "selling_price": [
-    //         "Rs.0 to Rs.999"
-    //     ]
-    // }
-    // Object.keys(obje)
-    // ["product_category","selling_price"]
-    // obj.product_category ->  [
-    //         "Kurtas",
-    //         "Kurta Sets"
-    //     ]
-
-    // const val  =   [
-    //         "Kurtas",
-    //         "Kurta Sets"
-    //     ]
-// val.loop -> urlStrig += `product_category-Kurtas`
-
-
-    
-
-      // extracting keys from the object 
-      // ["product_category","selling_price","discount"]
-      // 
-    //   {
-    //     "product_category": [
-    //         "Kurtas",
-    //         "Kurta Sets",
-    //         "Tops",
-    //         "Gowns & Dresses",
-    //         "Sharara Sets",
-    //         "Straight Kurta"
-    //     ],
-    //     "selling_price": [
-    //         "Rs.0 to Rs.999",
-    //         "Rs.1000 to Rs.1999"
-    //     ],
-    //     "discount": [
-    //         "10% and Above",
-    //         "20% and Above"
-    //     ]
-    // }
-      // a,b , c ,d 
-      let urlString = ""
-      Object.keys(appliedFilters)?.forEach((singleKey,index) => {
-
-        // extracting value from the object based on key
-        const singleValue = appliedFilters[singleKey] 
-        // [
-          //         "Kurtas",
-          //         "Kurta Sets",
-          //         "Tops",
-          //         "Gowns & Dresses",
-          //         "Sharara Sets",
-          //         "Straight Kurta"
-              // ]
-
-
-        if(singleValue?.length){
-          singleValue.forEach(value => {
-            // product_category-Kurtas
-            // product_category-Tops
-            // product_category-Straight Kurta
-            urlString += `${singleKey}-${value},`
-          })
-
-        }
-      })
-
-      console.log('appliedFilters',appliedFilters);
-
-      
-      setSearchParams({filter:urlString})
-   
-
-      // encodeURIComponent
-
-
-
-    }
-  },[appliedFilters])
-  // console.log('loaderRef',loaderRef?.current?.offsetTop);
 
   return (
     <>
