@@ -1,18 +1,26 @@
 import React, { useState } from "react";
 import ErrorModal from "./ErrorModal";
-import axios from "axios";
-import { BASE_URL } from "../../lib/constans";
+import { useDispatch } from "react-redux";
+import { setAddProject } from "../store/projectSlice";
+
+
 
 // 1 rem = 16px
 // 35 * 16 = 560
-function AddProject({ formClose ,fetchData}) {
+function AddProject({ formClose}) {
   const [modal, setModal] = useState(false);
   const [loader,setLoader] = useState(false)
+  
   const [formField, setFormField] = useState({
     title: "",
     description: "",
     date: "",
   });
+
+
+
+
+  const dispatch  = useDispatch()
 
   
 
@@ -23,14 +31,13 @@ function AddProject({ formClose ,fetchData}) {
     }
     setLoader(true)
     try{
-      const response = await axios.post(`${BASE_URL}/projects`,formField)
-      if(response.status == 201){
-        await fetchData()
-        formClose()
-      }
+      dispatch(setAddProject(formField))
+
+
     }catch(err){
 
     }finally{
+      formClose()
       setTimeout(() => setLoader(false),2000)
     }
 

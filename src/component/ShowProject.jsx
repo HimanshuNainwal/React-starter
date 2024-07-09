@@ -1,70 +1,47 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { BASE_URL } from "../../lib/constans";
+import { useDispatch, useSelector } from "react-redux";
+import { removeProject, removeTask, setTaskAdd } from "../store/projectSlice";
 
-function ShowProject({ id,closeProject }) {
-  const [project, setProject] = useState({});
+function ShowProject({ id, closeProject }) {
   const [currentTask, setCurrentTask] = useState("");
 
-  const getProjectDetail = async () => {
-    try {
-      const response = await axios.get(`${BASE_URL}/projects/${id}`);
-      if (response.status == 200) {
-        setProject(response.data);
-      }
-    } catch (err) {
-      console.log("err", err);
-    }
-  };
+  const dispatch = useDispatch()
+
+  const projects = useSelector((state) => state.project);
+  const projectList = projects.projectList;
+  const singleProject = projectList?.length
+    ? projectList.filter((el) => el?.id == id)
+    : {};
+  const project = singleProject?.length ? singleProject[0] : {};
 
   const addTask = async () => {
     try {
-      let task;
 
-      if (project?.task?.length > 0) {
-        task = [...project?.task, currentTask];
-      } else {
-        task = [currentTask];
-      }
+      dispatch(setTaskAdd({id,task:currentTask}))
 
-      const response = await axios.patch(`${BASE_URL}/projects/${id}`, {
-        task,
-      });
-      if (response.status == 200) {
-        setProject(response.data);
-        setCurrentTask("")
-      }
+     
+    } catch (err) {
+      console.log('err',err);
+    }
+
+  };
+
+
+  const handleClearTask = async (taskIndex) => {
+    try {
+      dispatch(removeTask({id,taskIndex}))
     } catch (err) {}
   };
 
-  const handleClearTask = async (taskIndex) => {
-
-    try {
-      const filteredTask = project?.task?.filter((_,index) => index !== taskIndex)
-      const response = await axios.patch(`${BASE_URL}/projects/${id}`, {
-        task:filteredTask,
-      });
-      if (response.status == 200) {
-        setProject(response.data);
-      }
-    } catch (err) {}
-
-  }
-
   const handleDeleteProject = async () => {
     try {
-      const response = await axios.delete(`${BASE_URL}/projects/${id}`);
-      console.log(response)
-      closeProject()
+      dispatch(removeProject(id))
+      closeProject();
     } catch (err) {}
+  };
 
-  }
-
-
-
-  useEffect(() => {
-    getProjectDetail();
-  }, [id]);
   return (
     <div>
       <header className="pb-4 mb-4 border-b-2 border-stone-300">
@@ -72,7 +49,10 @@ function ShowProject({ id,closeProject }) {
           <h1 className="text-3xl font-bold text-stone-600 mb-2">
             {project?.title}
           </h1>
-          <button className="text-stone-600 hover:text-stone-950" onClick={handleDeleteProject}>
+          <button
+            className="text-stone-600 hover:text-stone-950"
+            onClick={handleDeleteProject}
+          >
             Delete
           </button>
         </div>
