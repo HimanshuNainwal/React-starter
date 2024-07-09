@@ -25,8 +25,9 @@ function CategoryPage() {
   const loaderRef = useRef(null);
 
   const handleScroll = (e) => {
+    // 0 -2000/
     const topScroll = window.scrollY; // 0 - 20000 -4000
-    const loaderScroll = loaderRef?.current?.offsetTop; // 2000 - 4000
+    const loaderScroll = loaderRef?.current?.offsetTop; // 2000 - 4000 - 2700
 
     // uiLoader it will wait for the api call
     // isPageAvailable for when there is next page
